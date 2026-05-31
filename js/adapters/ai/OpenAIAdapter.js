@@ -1,19 +1,19 @@
 /**
- * GroqAdapter — Adaptador de IA para Groq
- * Implementa IAIPort usando la API de Groq (llama-3.3-70b)
+ * OpenAIAdapter — Adaptador de IA para OpenAI
+ * Implementa IAIPort usando la API de OpenAI (gpt-4o-mini)
  */
 import { IAIPort } from '../../ports/IAIPort.js';
-import { parseJSON, repairJSON } from '../utils/jsonUtils.js';
+import { parseJSON } from '../utils/jsonUtils.js';
 
-export class GroqAdapter extends IAIPort {
+export class OpenAIAdapter extends IAIPort {
   constructor(apiKey) {
     super();
     this.apiKey = apiKey;
-    this.baseURL = 'https://api.groq.com/openai/v1/chat/completions';
-    this.model = 'llama-3.3-70b-versatile';
+    this.baseURL = 'https://api.openai.com/v1/chat/completions';
+    this.model = 'gpt-4o-mini';
   }
 
-  get providerName() { return 'Groq (Llama 3.3)'; }
+  get providerName() { return 'OpenAI GPT-4o Mini'; }
 
   async _call(prompt, maxTokens = 4000) {
     const res = await fetch(this.baseURL, {
@@ -30,7 +30,7 @@ export class GroqAdapter extends IAIPort {
       })
     });
     const data = await res.json();
-    if (data.error) throw new Error(`Groq error: ${data.error.message}`);
+    if (data.error) throw new Error(`OpenAI error: ${data.error.message}`);
     return data.choices?.[0]?.message?.content || '';
   }
 
