@@ -5,809 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StudyPath AI — Tu plan de inglés personalizado</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #13131a;
-    --card: #1c1c26;
-    --border: #2e2e3e;
-    --accent: #ff6b35;
-    --green: #00d68f;
-    --blue: #4facfe;
-    --purple: #a78bfa;
-    --text: #f0f0f8;
-    --muted: #6b6b8a;
-    --gold: #ffd166;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ===== SCREENS ===== */
-  .screen { display: none; min-height: 100vh; flex-direction: column; }
-  .screen.active { display: flex; }
-
-  /* ===== WELCOME ===== */
-  #screen-welcome {
-    background: var(--bg);
-    position: relative;
-    overflow: hidden;
-    padding: 0;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-
-  .welcome-bg {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,107,53,0.18) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(79,172,254,0.1) 0%, transparent 50%),
-      radial-gradient(ellipse 50% 30% at 10% 60%, rgba(167,139,250,0.08) 0%, transparent 50%);
-    pointer-events: none;
-  }
-
-  .welcome-content {
-    position: relative;
-    z-index: 1;
-    padding: 48px 24px 60px;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-
-  .app-badge {
-    display: inline-block;
-    background: rgba(255,107,53,0.15);
-    border: 1px solid rgba(255,107,53,0.3);
-    color: var(--accent);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 5px 14px;
-    border-radius: 30px;
-    margin-bottom: 28px;
-  }
-
-  .welcome-title {
-    font-family: 'Fraunces', serif;
-    font-size: 3.2rem;
-    font-weight: 900;
-    line-height: 0.95;
-    margin-bottom: 20px;
-    letter-spacing: -1px;
-  }
-
-  .welcome-title em {
-    font-style: italic;
-    color: var(--accent);
-  }
-
-  .welcome-sub {
-    font-size: 1rem;
-    color: var(--muted);
-    line-height: 1.6;
-    margin-bottom: 40px;
-    font-weight: 300;
-  }
-
-  .start-btn {
-    width: 100%;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 16px;
-    padding: 18px;
-    font-family: 'Fraunces', serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 16px;
-  }
-
-  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,107,53,0.35); }
-
-  .welcome-note {
-    font-size: 0.78rem;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-
-  .features {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 36px;
-    text-align: left;
-  }
-
-  .feature {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 0.88rem;
-  }
-
-  .feature-icon { font-size: 1.1rem; flex-shrink: 0; }
-
-  /* ===== QUIZ ===== */
-  #screen-quiz {
-    padding: 0;
-    background: var(--bg);
-  }
-
-  .quiz-header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  .quiz-back {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 4px;
-  }
-
-  .quiz-progress-wrap { flex: 1; }
-
-  .quiz-step-label {
-    font-size: 0.72rem;
-    color: var(--muted);
-    margin-bottom: 5px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .quiz-bar {
-    height: 4px;
-    background: var(--border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .quiz-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--gold));
-    border-radius: 99px;
-    transition: width 0.4s ease;
-  }
-
-  .quiz-body {
-    padding: 28px 20px 100px;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-
-  .quiz-phase-tag {
-    display: inline-block;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 20px;
-    margin-bottom: 14px;
-  }
-
-  .quiz-q {
-    font-family: 'Fraunces', serif;
-    font-size: 1.35rem;
-    font-weight: 700;
-    line-height: 1.3;
-    margin-bottom: 24px;
-  }
-
-  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
-
-  .quiz-opt {
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.92rem;
-    color: var(--text);
-    text-align: left;
-  }
-
-  .quiz-opt:hover { border-color: var(--accent); background: rgba(255,107,53,0.06); }
-  .quiz-opt.selected { border-color: var(--accent); background: rgba(255,107,53,0.12); }
-
-  .opt-letter {
-    width: 30px; height: 30px;
-    border-radius: 8px;
-    background: var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.78rem; font-weight: 700;
-    flex-shrink: 0;
-    transition: background 0.2s;
-  }
-
-  .quiz-opt.selected .opt-letter { background: var(--accent); color: white; }
-
-  .quiz-nav {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--bg);
-    border-top: 1px solid var(--border);
-    padding: 16px 20px;
-    display: flex;
-    gap: 10px;
-  }
-
-  .quiz-next {
-    flex: 1;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 14px;
-    padding: 16px;
-    font-family: 'Fraunces', serif;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    opacity: 0.4;
-    pointer-events: none;
-  }
-
-  .quiz-next.ready { opacity: 1; pointer-events: all; }
-  .quiz-next.ready:hover { transform: scale(1.02); }
-
-  /* ===== GENERATING ===== */
-  #screen-generating {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 40px 24px;
-    background: var(--bg);
-  }
-
-  .gen-orb {
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,107,53,0.6), rgba(255,107,53,0.1));
-    margin: 0 auto 28px;
-    animation: pulse 1.8s ease-in-out infinite;
-    position: relative;
-  }
-
-  .gen-orb::after {
-    content: '🧠';
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.2rem;
-  }
-
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.1); opacity: 1; }
-  }
-
-  .gen-title {
-    font-family: 'Fraunces', serif;
-    font-size: 1.6rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
-
-  .gen-status {
-    font-size: 0.88rem;
-    color: var(--muted);
-    margin-bottom: 32px;
-    min-height: 20px;
-    transition: opacity 0.3s;
-  }
-
-  .gen-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    max-width: 320px;
-    text-align: left;
-  }
-
-  .gen-step {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.82rem;
-    color: var(--muted);
-    transition: color 0.3s;
-  }
-
-  .gen-step.done { color: var(--green); }
-  .gen-step.active { color: var(--text); }
-
-  .gen-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--border);
-    flex-shrink: 0;
-    transition: background 0.3s;
-  }
-
-  .gen-step.done .gen-dot { background: var(--green); }
-  .gen-step.active .gen-dot { background: var(--accent); animation: blink 0.8s ease infinite; }
-
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  /* ===== PLAN ===== */
-  #screen-plan {
-    background: var(--bg);
-    padding-bottom: 60px;
-  }
-
-  .plan-hero {
-    background: linear-gradient(135deg, var(--surface) 0%, #1a1a2a 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 32px 20px 28px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .plan-hero::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 180px; height: 180px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,107,53,0.15), transparent);
-    pointer-events: none;
-  }
-
-  .plan-name-tag {
-    font-size: 0.72rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 6px;
-  }
-
-  .plan-title {
-    font-family: 'Fraunces', serif;
-    font-size: 1.8rem;
-    font-weight: 900;
-    line-height: 1.1;
-    margin-bottom: 10px;
-  }
-
-  .plan-title span { color: var(--accent); }
-
-  .plan-meta {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 14px;
-  }
-
-  .meta-pill {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 0.75rem;
-    color: var(--muted);
-    font-weight: 500;
-  }
-
-  .plan-progress-bar {
-    margin: 16px 20px 0;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 16px;
-  }
-
-  .ppb-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-bottom: 8px;
-    font-weight: 600;
-  }
-
-  .ppb-pct { color: var(--accent) !important; font-family: 'Fraunces', serif; font-size: 1rem; }
-
-  .ppb-track {
-    height: 6px;
-    background: var(--border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .ppb-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--gold));
-    border-radius: 99px;
-    transition: width 0.6s ease;
-  }
-
-  /* AI PLAN CONTENT */
-  .plan-content {
-    padding: 20px;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-
-  .plan-section-title {
-    font-family: 'Fraunces', serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 24px 0 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* Rendered AI content styles */
-  .ai-block {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 14px;
-    font-size: 0.9rem;
-    line-height: 1.65;
-    color: #d8d8f0;
-  }
-
-  .ai-block h3 {
-    font-family: 'Fraunces', serif;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .ai-block ul { padding-left: 18px; margin-top: 6px; }
-  .ai-block li { margin-bottom: 5px; }
-  .ai-block strong { color: var(--gold); font-weight: 600; }
-  .ai-block em { color: var(--accent); font-style: normal; }
-  .ai-block a { color: var(--blue); text-decoration: underline; }
-
-  .week-block {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-
-  .week-block-header {
-    padding: 14px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .week-block-header:active { opacity: 0.7; }
-
-  .wbh-left { display: flex; flex-direction: column; gap: 2px; }
-  .wbh-num { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  .wbh-title { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; }
-  .wbh-arrow { color: var(--muted); font-size: 0.9rem; transition: transform 0.3s; }
-  .week-block.open .wbh-arrow { transform: rotate(180deg); }
-
-  .week-block-body {
-    border-top: 1px solid var(--border);
-    padding: 14px 16px;
-    display: none;
-    font-size: 0.86rem;
-    line-height: 1.6;
-    color: #c0c0e0;
-  }
-
-  .week-block.open .week-block-body { display: block; }
-
-  .week-block-body ul { padding-left: 16px; }
-  .week-block-body li { margin-bottom: 6px; }
-  .week-block-body strong { color: var(--gold); }
-
-  /* SESSION CHECK */
-  .session-check {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    user-select: none;
-  }
-
-  .session-check:active { opacity: 0.7; }
-  .session-check.done { background: rgba(0,214,143,0.06); border-color: rgba(0,214,143,0.25); }
-
-  .sc-box {
-    width: 22px; height: 22px;
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem; color: transparent;
-    transition: all 0.2s;
-    margin-top: 1px;
-  }
-
-  .session-check.done .sc-box { background: var(--green); border-color: var(--green); color: white; }
-
-  .sc-text { flex: 1; font-size: 0.86rem; line-height: 1.4; }
-  .session-check.done .sc-text { text-decoration: line-through; color: var(--muted); }
-  .sc-time { font-size: 0.7rem; color: var(--muted); font-weight: 600; margin-top: 3px; }
-
-  /* RESOURCES */
-  .resource-link {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 8px;
-    text-decoration: none;
-    color: var(--text);
-    font-size: 0.86rem;
-    transition: all 0.2s;
-  }
-
-  .resource-link:hover { border-color: var(--blue); background: rgba(79,172,254,0.06); }
-  .resource-icon { font-size: 1.1rem; flex-shrink: 0; }
-  .resource-name { font-weight: 600; }
-  .resource-desc { font-size: 0.75rem; color: var(--muted); }
-  .resource-arrow { margin-left: auto; color: var(--muted); font-size: 0.8rem; }
-
-  /* SHARE */
-  .share-btn {
-    width: 100%;
-    background: transparent;
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 14px;
-    color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 20px;
-  }
-
-  .share-btn:hover { border-color: var(--accent); color: var(--text); }
-
-  .restart-btn {
-    width: 100%;
-    background: var(--accent);
-    border: none;
-    border-radius: 14px;
-    padding: 16px;
-    color: white;
-    font-family: 'Fraunces', serif;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 10px;
-  }
-
-  /* TOAST */
-  .toast {
-    position: fixed;
-    bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 20px;
-    border-radius: 30px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    opacity: 0;
-    transition: all 0.3s;
-    pointer-events: none;
-    z-index: 999;
-    white-space: nowrap;
-  }
-
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* ERROR */
-  .error-box {
-    background: rgba(255,80,80,0.1);
-    border: 1px solid rgba(255,80,80,0.3);
-    border-radius: 14px;
-    padding: 20px;
-    text-align: center;
-    margin: 20px;
-  }
-
-  .error-box p { font-size: 0.88rem; color: #ff8080; margin-bottom: 14px; line-height: 1.5; }
-
-  .retry-btn {
-    background: var(--accent);
-    border: none;
-    border-radius: 10px;
-    padding: 10px 24px;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.88rem;
-  }
-
-  /* ANIM */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .fade-up { animation: fadeUp 0.4s ease forwards; }
-
-  /* ===== API KEY SCREEN ===== */
-  #screen-apikey {
-    background: var(--bg);
-    justify-content: center;
-    align-items: center;
-    padding: 32px 20px;
-  }
-  .apikey-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 32px 24px;
-    width: 100%;
-    max-width: 420px;
-  }
-  .apikey-icon { font-size: 2.2rem; margin-bottom: 14px; }
-  .apikey-title { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
-  .apikey-sub { font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
-  .provider-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-  .provider-tab {
-    flex: 1; padding: 10px 8px; border-radius: 12px; border: 1.5px solid var(--border);
-    background: transparent; color: var(--muted); font-size: 0.82rem; font-weight: 600;
-    cursor: pointer; transition: all 0.2s; text-align: center;
-  }
-  .provider-tab.active { border-color: var(--accent); background: rgba(255,107,53,0.1); color: var(--text); }
-  .provider-tab .tab-icon { font-size: 1.1rem; display: block; margin-bottom: 4px; }
-  .provider-info {
-    background: var(--surface); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
-    font-size: 0.8rem; color: var(--muted); line-height: 1.5; display: flex; gap: 10px; align-items: flex-start;
-  }
-  .provider-info a { color: var(--blue); }
-  .key-input-wrap { position: relative; margin-bottom: 14px; }
-  .key-input {
-    width: 100%; background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 12px; padding: 14px 44px 14px 14px; color: var(--text);
-    font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; transition: border-color 0.2s;
-  }
-  .key-input:focus { border-color: var(--accent); }
-  .key-input::placeholder { color: var(--muted); }
-  .key-toggle {
-    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 4px;
-  }
-  .key-status { font-size: 0.76rem; margin-bottom: 16px; min-height: 18px; display: flex; align-items: center; gap: 6px; }
-  .key-status.ok { color: var(--green); }
-  .key-status.err { color: #ff6b6b; }
-  .key-status.info { color: var(--muted); }
-  .key-submit {
-    width: 100%; background: var(--accent); border: none; border-radius: 14px; padding: 16px;
-    color: white; font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700;
-    cursor: pointer; transition: all 0.2s; margin-bottom: 12px;
-  }
-  .key-submit:hover { transform: scale(1.02); }
-  .key-submit:disabled { opacity: 0.5; pointer-events: none; }
-  .key-saved-row {
-    display: none; background: rgba(0,214,143,0.08); border: 1px solid rgba(0,214,143,0.25);
-    border-radius: 12px; padding: 10px 14px; font-size: 0.8rem; color: var(--green);
-    align-items: center; gap: 8px; margin-bottom: 12px; justify-content: space-between;
-  }
-  .key-saved-row.visible { display: flex; }
-  .key-clear { background: none; border: none; color: var(--muted); font-size: 0.75rem; cursor: pointer; text-decoration: underline; }
-  .privacy-note { font-size: 0.73rem; color: var(--muted); text-align: center; line-height: 1.5; margin-top: 4px; }
-
-  /* DIVIDER */
-  .divider-or {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 16px 0;
-    color: var(--muted);
-    font-size: 0.8rem;
-  }
-  .divider-or::before, .divider-or::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  /* CLAUDE BUTTON */
-  .claude-btn {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    padding: 14px 18px;
-    text-decoration: none;
-    color: var(--text);
-    transition: all 0.2s;
-    margin-bottom: 16px;
-  }
-
-  .claude-btn:hover {
-    border-color: var(--purple);
-    background: rgba(167,139,250,0.08);
-    transform: translateY(-1px);
-  }
-
-  .claude-btn-icon { font-size: 1.4rem; flex-shrink: 0; }
-
-  .claude-btn-text {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-  }
-
-  .claude-btn-title {
-    font-weight: 700;
-    font-size: 0.92rem;
-  }
-
-  .claude-btn-sub {
-    font-size: 0.72rem;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .claude-btn-arrow {
-    color: var(--purple);
-    font-weight: 700;
-  }
-
-</style>
+<link rel="stylesheet" href="css/styles.css">
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -817,63 +17,159 @@
   <div class="welcome-content">
     <div class="app-badge">✦ Powered by IA</div>
     <h1 class="welcome-title">Tu plan de<br><em>inglés</em><br>ideal</h1>
-    <p class="welcome-sub">Responde unas preguntas y la IA diseña un plan de estudio 100% personalizado para tu forma de aprender.</p>
+    <p class="welcome-sub">Test de nivel real + análisis de tu estilo de aprendizaje. La IA genera y valida tu plan personalizado.</p>
     <div class="features">
+      <div class="feature"><span class="feature-icon">📊</span><span>Examen de nivel EF SET oficial</span></div>
       <div class="feature"><span class="feature-icon">🧠</span><span>Test de estilo de aprendizaje</span></div>
-      <div class="feature"><span class="feature-icon">🎯</span><span>Plan generado por IA según tus respuestas</span></div>
-      <div class="feature"><span class="feature-icon">✅</span><span>Checklist interactivo para seguir tu progreso</span></div>
-    </div>
-    <button class="start-btn" onclick="checkAndStart()">Comenzar con Groq — gratis →</button>
-    
-    <div class="divider-or">
-      <span>o</span>
+      <div class="feature"><span class="feature-icon">🔄</span><span>Plan generado y validado por dos IAs</span></div>
+      <div class="feature"><span class="feature-icon">☁️</span><span>Progreso guardado en tu Google Drive</span></div>
     </div>
 
-    <a class="claude-btn" href="https://claude.ai/new?q=Crea%20una%20app%20web%20interactiva%20llamada%20StudyPath%20AI%20en%20un%20solo%20archivo%20HTML.%20Es%20una%20app%20para%20generar%20planes%20de%20estudio%20de%20ingl%C3%A9s%20personalizados%20con%20IA.%20%0A%0AFLUJO%20DE%20LA%20APP%20%284%20pantallas%29%3A%0A%0A1.%20BIENVENIDA%3A%20T%C3%ADtulo%20%22Tu%20plan%20de%20ingl%C3%A9s%20ideal%22%2C%20descripci%C3%B3n%2C%203%20features%20%28test%20de%20estilo%2C%20plan%20con%20IA%2C%20checklist%20interactivo%29%2C%20bot%C3%B3n%20%22Comenzar%22.%0A%0A2.%20QUIZ%20%2815%20preguntas%20en%203%20fases%29%3A%0AFase%201%20-%20Estilo%20de%20aprendizaje%20%286%20preguntas%29%3A%20estilo%20visual/auditivo/lecto-escritor/kinest%C3%A9sico%2C%20tiempo%20de%20atenci%C3%B3n%2C%20distractores.%0AFase%202%20-%20Tu%20situaci%C3%B3n%20%285%20preguntas%29%3A%20examen%20objetivo%20%28IELTS/TOEFL/Cambridge/trabajo%29%2C%20nivel%20actual%2C%20habilidades%20d%C3%A9biles%2C%20tiempo%20disponible%2C%20d%C3%ADas%20por%20semana.%0AFase%203%20-%20Preferencias%20%284%20preguntas%29%3A%20actividades%20favoritas%2C%20estudio%20solo%20o%20acompa%C3%B1ado%2C%20tiempo%20por%20sesi%C3%B3n%2C%20dispositivo.%0ABarra%20de%20progreso%20visible.%20Bot%C3%B3n%20atr%C3%A1s%20funcional.%0A%0A3.%20GENERANDO%3A%20Animaci%C3%B3n%20con%20orbe%20pulsante%2C%20pasos%20animados%20que%20se%20van%20completando.%0A%0A4.%20PLAN%20GENERADO%3A%20H%C3%A9roe%20con%20t%C3%ADtulo%20del%20plan%2C%20barra%20de%20progreso%20general%2C%20semanas%20expandibles/colapsables%2C%20sesiones%20con%20checkbox%20para%20marcar%20como%20completadas%2C%20recursos%20con%20links%2C%20consejo%20final.%20Todo%20interactivo.%0A%0AGENERACI%C3%93N%20CON%20IA%3A%20Usar%20fetch%20a%20https%3A//api.anthropic.com/v1/messages%20con%20modelo%20claude-sonnet-4-20250514%2C%20max_tokens%204000.%20El%20prompt%20pide%20JSON%20con%3A%20titulo%2C%20meta_pills%2C%20perfil_resumen%2C%20recomendacion_tdah%2C%20semanas%20%28con%20sesiones%20que%20tienen%20titulo%2C%20descripcion%2C%20duracion%2C%20recurso_nombre%2C%20recurso_url%29%2C%20recursos_clave%2C%20consejo_final.%20Incluir%20funci%C3%B3n%20repairJSON%20para%20manejar%20JSON%20truncado.%0A%0ADISE%C3%91O%3A%20Dark%20mode%20%28%230a0a0f%20fondo%29%2C%20fuentes%20Fraunces%20%2B%20DM%20Sans%20de%20Google%20Fonts%2C%20color%20acento%20%23ff6b35%2C%20verde%20%2300d68f%2C%20azul%20%234facfe.%20Mobile-first%2C%20bordes%20redondeados%2C%20animaciones%20suaves.%20Sin%20librer%C3%ADas%20externas%20excepto%20Google%20Fonts.%0A%0AGenera%20el%20HTML%20completo%2C%20funcional%20y%20listo%20para%20usar." target="_blank">
-      <span class="claude-btn-icon">🤖</span>
-      <div class="claude-btn-text">
-        <span class="claude-btn-title">Abrir en Claude.ai</span>
-        <span class="claude-btn-sub">La IA genera tu plan · Cuenta gratuita de Claude</span>
-      </div>
-      <span class="claude-btn-arrow">→</span>
-    </a>
+    <!-- Google Sign In -->
+    <div id="g_id_onload"
+      data-client_id="%%GOOGLE_CLIENT_ID%%"
+      data-callback="handleGoogleSignIn"
+      data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+      data-type="standard"
+      data-size="large"
+      data-theme="filled_black"
+      data-text="continue_with"
+      data-shape="rectangular"
+      data-logo_alignment="left"
+      data-width="320">
+    </div>
 
-    <p class="welcome-note">~5 minutos · Sin tarjeta · Plan listo al instante</p>
+    <p class="welcome-note">🔒 Solo usamos Google para guardar tu progreso. No accedemos a tus archivos.</p>
   </div>
 </div>
-
 
 <!-- ===== API KEY ===== -->
 <div class="screen" id="screen-apikey">
   <div class="apikey-card">
     <div class="apikey-icon">⚡</div>
-    <h2 class="apikey-title">Conecta Groq <span style="color:var(--green);font-size:0.9rem">gratis</span></h2>
-    <p class="apikey-sub">Usa <strong style="color:var(--green)">Groq</strong> — es completamente gratis, rápido y solo necesitas tu email para registrarte. Tu key se guarda en tu dispositivo.</p>
+    <h2 class="apikey-title">Elige tu IA</h2>
+    <p class="apikey-sub">Selecciona el proveedor de IA y pega tu API key. Se guarda en tu Google Drive, nunca en nuestros servidores.</p>
 
-    <div class="key-saved-row" id="key-saved-row">
-      <span>✅ API key guardada</span>
-      <button class="key-clear" onclick="clearKey()">Cambiar</button>
-    </div>
-
-    <div id="key-form">
-      <div class="provider-info" id="provider-info">
-        <span>ℹ️</span>
-        <span id="provider-info-text">Groq es gratis y muy rápido. Obtén tu key en <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> — solo necesitas tu email, sin tarjeta.</span>
-      </div>
-
-      <div class="key-input-wrap">
-        <input class="key-input" id="key-input" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx" oninput="onKeyInput()">
-        <button class="key-toggle" onclick="toggleKeyVisibility()">👁</button>
-      </div>
-
-      <div class="key-status info" id="key-status">La key se guarda solo en tu navegador</div>
-
-      <button class="key-submit" id="key-submit" onclick="saveKeyAndStart()" disabled>
-        Guardar y comenzar →
+    <div class="provider-tabs">
+      <button class="provider-tab active" id="tab-groq" onclick="selectProvider('groq')">
+        <span class="tab-icon">⚡</span>Groq<span class="tab-free">GRATIS</span>
+      </button>
+      <button class="provider-tab" id="tab-gemini" onclick="selectProvider('gemini')">
+        <span class="tab-icon">🌟</span>Gemini<span class="tab-free">GRATIS</span>
+      </button>
+      <button class="provider-tab" id="tab-openai" onclick="selectProvider('openai')">
+        <span class="tab-icon">🤖</span>OpenAI<span class="tab-paid">PAGO</span>
       </button>
     </div>
 
-    <p class="privacy-note">🔒 Tu key nunca sale de tu dispositivo. Se almacena en localStorage de tu navegador.</p>
+    <div class="provider-info" id="provider-info">
+      <span>ℹ️</span><span id="provider-info-text"></span>
+    </div>
+
+    <!-- Key input principal -->
+    <div class="key-label" id="key-label-primary">Tu API key principal</div>
+    <div class="key-input-wrap">
+      <input class="key-input" id="key-input-primary" type="password" placeholder="Pega tu API key aquí..." oninput="validateKeys()">
+      <button class="key-toggle" onclick="toggleVis('key-input-primary')">👁</button>
+    </div>
+
+    <!-- Key secundaria para validación cruzada -->
+    <div class="key-label secondary-label">
+      Key del validador (opcional pero recomendado)
+      <button class="help-btn" onclick="showValidatorHelp()">¿Qué es esto?</button>
+    </div>
+    <div class="key-input-wrap">
+      <input class="key-input" id="key-input-secondary" type="password" placeholder="Key del segundo proveedor..." oninput="validateKeys()">
+      <button class="key-toggle" onclick="toggleVis('key-input-secondary')">👁</button>
+    </div>
+
+    <div class="key-status info" id="key-status">Las keys se guardan en tu Google Drive</div>
+
+    <button class="key-submit" id="key-submit" onclick="saveKeysAndStart()" disabled>
+      Guardar y comenzar →
+    </button>
+
+    <!-- Pop-up ayuda Groq -->
+    <div class="help-popup" id="help-groq" style="display:none">
+      <div class="help-popup-content">
+        <button class="help-close" onclick="closeHelp('help-groq')">✕</button>
+        <h3>Cómo obtener tu key de Groq</h3>
+        <div class="help-step"><span class="help-num">1</span><span>Ve a <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a></span></div>
+        <div class="help-step"><span class="help-num">2</span><span>Crea una cuenta con tu email (gratis)</span></div>
+        <div class="help-step"><span class="help-num">3</span><span>Toca <strong>Create API Key</strong></span></div>
+        <div class="help-step"><span class="help-num">4</span><span>Copia la key y pégala aquí</span></div>
+        <a href="https://console.groq.com/keys" target="_blank" class="help-link-btn">Ir a Groq →</a>
+      </div>
+    </div>
+
+    <!-- Pop-up ayuda Gemini -->
+    <div class="help-popup" id="help-gemini" style="display:none">
+      <div class="help-popup-content">
+        <button class="help-close" onclick="closeHelp('help-gemini')">✕</button>
+        <h3>Cómo obtener tu key de Gemini</h3>
+        <div class="help-step"><span class="help-num">1</span><span>Ve a <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a></span></div>
+        <div class="help-step"><span class="help-num">2</span><span>Inicia sesión con tu cuenta Google</span></div>
+        <div class="help-step"><span class="help-num">3</span><span>Toca <strong>Create API Key</strong></span></div>
+        <div class="help-step"><span class="help-num">4</span><span>Copia la key y pégala aquí</span></div>
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="help-link-btn">Ir a Google AI Studio →</a>
+      </div>
+    </div>
+
+    <!-- Pop-up ayuda OpenAI -->
+    <div class="help-popup" id="help-openai" style="display:none">
+      <div class="help-popup-content">
+        <button class="help-close" onclick="closeHelp('help-openai')">✕</button>
+        <h3>Cómo obtener tu key de OpenAI</h3>
+        <div class="help-step"><span class="help-num">1</span><span>Ve a <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a></span></div>
+        <div class="help-step"><span class="help-num">2</span><span>Crea una cuenta (requiere tarjeta de crédito)</span></div>
+        <div class="help-step"><span class="help-num">3</span><span>Toca <strong>Create new secret key</strong></span></div>
+        <div class="help-step"><span class="help-num">4</span><span>Copia la key y pégala aquí</span></div>
+        <a href="https://platform.openai.com/api-keys" target="_blank" class="help-link-btn">Ir a OpenAI →</a>
+      </div>
+    </div>
+
+    <!-- Pop-up validador cruzado -->
+    <div class="help-popup" id="help-validator" style="display:none">
+      <div class="help-popup-content">
+        <button class="help-close" onclick="closeHelp('help-validator')">✕</button>
+        <h3>¿Qué es el validador?</h3>
+        <p style="font-size:0.88rem;line-height:1.6;color:#c0c0e0;margin-bottom:14px">
+          Para evitar errores, tu plan lo genera una IA y lo revisa otra IA diferente. Si encuentra problemas, lo corrige automáticamente.
+        </p>
+        <p style="font-size:0.82rem;color:var(--muted)">
+          Si usas Groq como principal, el validador puede ser Gemini (gratis). Si usas Gemini, el validador puede ser Groq.
+        </p>
+      </div>
+    </div>
+
+    <p class="privacy-note">🔒 Tus keys se guardan en tu propio Google Drive. Nadie más puede acceder a ellas.</p>
+  </div>
+</div>
+
+<!-- ===== EFSET ===== -->
+<div class="screen" id="screen-efset">
+  <div class="efset-content">
+    <div class="efset-icon">📊</div>
+    <h2 class="efset-title">Mide tu nivel real</h2>
+    <p class="efset-sub">EF SET es el examen de inglés gratuito más reconocido del mundo, alineado al marco CEFR. Toma ~15 minutos.</p>
+    <div class="efset-steps">
+      <div class="efset-step"><span class="efset-num">1</span><span>Toca el botón para abrir EF SET</span></div>
+      <div class="efset-step"><span class="efset-num">2</span><span>Completa el examen rápido (~15 min)</span></div>
+      <div class="efset-step"><span class="efset-num">3</span><span>Anota tu puntaje (número del 1 al 100)</span></div>
+      <div class="efset-step"><span class="efset-num">4</span><span>Regresa aquí e ingrésalo</span></div>
+    </div>
+    <a href="https://www.efset.org/quick-check/" target="_blank" class="efset-btn">Hacer examen EF SET →</a>
+    <div class="efset-input-wrap">
+      <label class="efset-label">Tu puntaje EF SET (1–100)</label>
+      <input class="efset-input" id="efset-score" type="number" min="1" max="100" placeholder="ej: 52" oninput="validateEFSET()">
+      <div class="efset-level" id="efset-level"></div>
+    </div>
+    <button class="efset-next" id="efset-next" onclick="submitEFSET()" disabled>
+      Continuar al quiz →
+    </button>
+    <button class="efset-skip" onclick="skipEFSET()">Saltar por ahora</button>
   </div>
 </div>
 
@@ -882,7 +178,7 @@
   <div class="quiz-header">
     <button class="quiz-back" onclick="quizBack()">←</button>
     <div class="quiz-progress-wrap">
-      <div class="quiz-step-label" id="q-step-label">Paso 1 de 15</div>
+      <div class="quiz-step-label" id="q-step-label">Paso 1 de 14</div>
       <div class="quiz-bar"><div class="quiz-bar-fill" id="q-bar" style="width:7%"></div></div>
     </div>
   </div>
@@ -900,13 +196,13 @@
 <div class="screen" id="screen-generating">
   <div class="gen-orb"></div>
   <h2 class="gen-title">Creando tu plan…</h2>
-  <p class="gen-status" id="gen-status">Analizando tus respuestas</p>
+  <p class="gen-status" id="gen-status">Iniciando</p>
   <div class="gen-steps">
-    <div class="gen-step active" id="gs1"><div class="gen-dot"></div>Analizando estilo de aprendizaje</div>
-    <div class="gen-step" id="gs2"><div class="gen-dot"></div>Calculando estructura del plan</div>
-    <div class="gen-step" id="gs3"><div class="gen-dot"></div>Seleccionando recursos personalizados</div>
-    <div class="gen-step" id="gs4"><div class="gen-dot"></div>Generando semanas y sesiones</div>
-    <div class="gen-step" id="gs5"><div class="gen-dot"></div>Finalizando tu plan</div>
+    <div class="gen-step" id="gs1"><div class="gen-dot"></div>Analizando tu perfil</div>
+    <div class="gen-step" id="gs2"><div class="gen-dot"></div>Generando plan personalizado</div>
+    <div class="gen-step" id="gs3"><div class="gen-dot"></div>Validando con segunda IA</div>
+    <div class="gen-step" id="gs4"><div class="gen-dot"></div>Aplicando mejoras</div>
+    <div class="gen-step" id="gs5"><div class="gen-dot"></div>Guardando en Google Drive</div>
   </div>
 </div>
 
@@ -914,7 +210,7 @@
 <div class="screen" id="screen-plan">
   <div class="plan-hero">
     <div class="plan-name-tag">Tu plan personalizado</div>
-    <div class="plan-title" id="plan-title">Plan <span>B2</span> IELTS</div>
+    <div class="plan-title" id="plan-title">Plan Personalizado</div>
     <div class="plan-meta" id="plan-meta"></div>
   </div>
   <div class="plan-progress-bar">
@@ -927,506 +223,132 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<script type="module" src="js/app.js"></script>
 <script>
-// ===== QUESTIONS =====
-const QUESTIONS = [
-  // Phase 1: Learning style (6 questions)
-  { phase: "Estilo de aprendizaje", phaseColor: "#4facfe", text: "Cuando aprendes algo nuevo, ¿qué te funciona mejor?", options: ["Ver un video o diagrama visual", "Escuchar a alguien explicarlo", "Leer y tomar notas detalladas", "Practicarlo yo mismo de inmediato"], key: "style1" },
-  { phase: "Estilo de aprendizaje", phaseColor: "#4facfe", text: "Para memorizar vocabulario nuevo, ¿qué haces?", options: ["Tarjetas con imágenes o colores", "Repetirlo en voz alta varias veces", "Escribirlo en listas o frases", "Usarlo en conversaciones reales"], key: "style2" },
-  { phase: "Estilo de aprendizaje", phaseColor: "#4facfe", text: "¿Cuándo te concentras mejor estudiando?", options: ["Con material visual (videos, esquemas)", "Con música o audio de fondo", "Con apuntes bien organizados", "Moviéndome o haciendo algo a la vez"], key: "style3" },
-  { phase: "Estilo de aprendizaje", phaseColor: "#4facfe", text: "¿Cuánto tiempo puedes estudiar antes de distraerte?", options: ["Menos de 15 minutos", "15–25 minutos", "30–45 minutos", "Más de 45 minutos"], key: "attention" },
-  { phase: "Estilo de aprendizaje", phaseColor: "#4facfe", text: "Cuando algo no te entra, ¿qué haces?", options: ["Busco un video o imagen diferente", "Pido que me lo expliquen", "Lo reescribo con mis palabras", "Lo intento aplicar en algo real"], key: "style4" },
-  { phase: "Estilo de aprendizaje", phaseColor: "#4facfe", text: "¿Cuál es tu mayor distractor al estudiar?", options: ["El celular y las notificaciones", "El ruido del ambiente", "No tener los materiales organizados", "Estar mucho tiempo quieto"], key: "distractor" },
-
-  // Phase 2: Exam & Level (5 questions)
-  { phase: "Tu situación", phaseColor: "#ff6b35", text: "¿Qué examen o meta de inglés tienes?", options: ["IELTS", "TOEFL", "Cambridge (B2 First / C1)", "Mejorar para trabajo o estudio"], key: "exam" },
-  { phase: "Tu situación", phaseColor: "#ff6b35", text: "¿Cuál es tu nivel actual de inglés?", options: ["Básico (A1–A2)", "Intermedio bajo (B1)", "Intermedio (B1–B2)", "Intermedio alto (B2–C1)"], key: "level" },
-  { phase: "Tu situación", phaseColor: "#ff6b35", text: "¿Cuáles son tus habilidades más débiles?", options: ["Gramática y escritura", "Lectura y vocabulario", "Listening y pronunciación", "Speaking y fluidez"], key: "weakness" },
-  { phase: "Tu situación", phaseColor: "#ff6b35", text: "¿Cuánto tiempo tienes para prepararte?", options: ["1 mes o menos", "2–3 meses", "4–6 meses", "Más de 6 meses"], key: "timeframe" },
-  { phase: "Tu situación", phaseColor: "#ff6b35", text: "¿Cuántos días a la semana puedes estudiar?", options: ["1–2 días", "3–4 días", "5–6 días", "Todos los días"], key: "days" },
-
-  // Phase 3: Preferences (4 questions)
-  { phase: "Preferencias", phaseColor: "#00d68f", text: "¿Qué tipo de actividades disfrutas más?", options: ["Ver series/películas en inglés", "Escuchar podcasts o música", "Leer artículos o libros", "Conversar o jugar en inglés"], key: "enjoy" },
-  { phase: "Preferencias", phaseColor: "#00d68f", text: "¿Prefieres estudiar solo o con ayuda?", options: ["Solo, a mi ritmo", "Con un tutor o profesor", "Con compañeros de estudio", "Mezcla de todo"], key: "social" },
-  { phase: "Preferencias", phaseColor: "#00d68f", text: "¿Cuánto tiempo por sesión puedes dedicar?", options: ["10–15 minutos", "20–30 minutos", "45–60 minutos", "Más de 1 hora"], key: "session_time" },
-  { phase: "Preferencias", phaseColor: "#00d68f", text: "¿Tienes acceso a computadora o solo celular?", options: ["Solo celular", "Celular y computadora", "Solo computadora", "Tablet principalmente"], key: "device" },
-];
-
-// ===== STATE =====
-let currentQ = 0;
-let answers = {};
-let selectedIdx = null;
-let sessions = {};
-let totalSessions = 0;
-
-// ===== NAVIGATION =====
-function goTo(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + screenId).classList.add('active');
-  window.scrollTo(0, 0);
-}
-
-// ===== QUIZ =====
-function renderQuestion() {
-  const q = QUESTIONS[currentQ];
-  const total = QUESTIONS.length;
-  const pct = Math.round(((currentQ + 1) / total) * 100);
-
-  document.getElementById('q-step-label').textContent = `Paso ${currentQ + 1} de ${total}`;
-  document.getElementById('q-bar').style.width = pct + '%';
-
-  const tag = document.getElementById('q-phase-tag');
-  tag.textContent = q.phase;
-  tag.style.background = q.phaseColor + '22';
-  tag.style.color = q.phaseColor;
-  tag.style.border = '1px solid ' + q.phaseColor + '44';
-
-  document.getElementById('q-text').textContent = q.text;
-
-  const opts = document.getElementById('q-options');
-  opts.innerHTML = '';
-  const letters = ['A','B','C','D'];
-  q.options.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'quiz-opt' + (selectedIdx === i ? ' selected' : '');
-    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span>${opt}`;
-    btn.onclick = () => selectOpt(i, btn);
-    opts.appendChild(btn);
-  });
-
-  const nextBtn = document.getElementById('q-next');
-  nextBtn.classList.toggle('ready', selectedIdx !== null);
-  nextBtn.textContent = currentQ === total - 1 ? 'Generar mi plan 🎯' : 'Siguiente →';
-}
-
-function selectOpt(i, btn) {
-  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedIdx = i;
-  document.getElementById('q-next').classList.add('ready');
-}
-
-function quizNext() {
-  if (selectedIdx === null) return;
-  const q = QUESTIONS[currentQ];
-  answers[q.key] = { index: selectedIdx, value: q.options[selectedIdx] };
-  selectedIdx = null;
-
-  if (currentQ < QUESTIONS.length - 1) {
-    currentQ++;
-    renderQuestion();
-  } else {
-    generatePlan();
-  }
-}
-
-function quizBack() {
-  if (currentQ === 0) { goTo('welcome'); return; }
-  currentQ--;
-  selectedIdx = answers[QUESTIONS[currentQ].key]?.index ?? null;
-  renderQuestion();
-}
-
-// ===== GENERATE =====
-async function generatePlan() {
-  goTo('generating');
-  animateGenSteps();
-
-  const profile = buildProfile();
-  const apiKey = localStorage.getItem('sp_apikey') || '';
-  const prompt  = buildPrompt(profile);
-
-  try {
-    let raw = '';
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + apiKey
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        max_tokens: 4000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    raw = data.choices?.[0]?.message?.content || '';
-
-    const plan = parseJSON(raw);
-    renderPlan(plan);
-  } catch (err) {
-    console.error(err);
-    renderError();
-  }
-}
-
-function parseJSON(raw) {
-  // 1. Strip markdown fences
-  let text = raw.replace(/```json|```/g, '').trim();
-
-  // 2. Find the first { and last } to extract only the JSON object
-  const start = text.indexOf('{');
-  let end = text.lastIndexOf('}');
-  if (start === -1) throw new Error('No JSON found');
-
-  if (end === -1 || end < start) {
-    // JSON was truncated — attempt to close all open brackets
-    text = text.slice(start);
-    text = repairJSON(text);
-  } else {
-    text = text.slice(start, end + 1);
-  }
-
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    // Last resort: try repairing and parsing again
-    const repaired = repairJSON(text);
-    return JSON.parse(repaired);
-  }
-}
-
-function repairJSON(str) {
-  // Close any open strings, arrays, and objects
-  let result = str;
-
-  // Count unclosed brackets
-  let opens = 0, openArr = 0;
-  let inString = false, escape = false;
-
-  for (let i = 0; i < result.length; i++) {
-    const c = result[i];
-    if (escape) { escape = false; continue; }
-    if (c === '\\' && inString) { escape = true; continue; }
-    if (c === '"') { inString = !inString; continue; }
-    if (inString) continue;
-    if (c === '{') opens++;
-    else if (c === '}') opens--;
-    else if (c === '[') openArr++;
-    else if (c === ']') openArr--;
-  }
-
-  // If inside a string, close it
-  if (inString) result += '"';
-
-  // Remove trailing comma if present before closing
-  result = result.replace(/,\s*$/, '');
-
-  // Close open arrays and objects
-  for (let i = 0; i < openArr; i++) result += ']';
-  for (let i = 0; i < opens; i++) result += '}';
-
-  return result;
-}
-
-function buildPrompt(profile) {
-  return `Eres un experto en enseñanza de inglés y diseño de planes de estudio personalizados.
-
-Crea un plan de estudio de inglés en español basado en este perfil del estudiante:
-
-${profile}
-
-Responde SOLO con un objeto JSON válido, sin markdown, sin explicaciones extra. El formato exacto debe ser:
-
-{
-  "titulo": "Nombre corto y motivador del plan",
-  "meta_principal": "Una frase que describe el objetivo principal",
-  "perfil_resumen": "2 oraciones describiendo el perfil único de este estudiante",
-  "recomendacion_tdah": "Si tiene atención corta, 1-2 oraciones con estrategia. Si no, string vacío.",
-  "meta_pills": ["Píldora 1", "Píldora 2", "Píldora 3"],
-  "semanas": [
-    {
-      "numero": 1,
-      "titulo": "Título de la semana",
-      "enfoque": "Descripción breve del enfoque",
-      "sesiones": [
-        {
-          "titulo": "Título de la sesión",
-          "descripcion": "Qué hacer exactamente",
-          "duracion": "20 min",
-          "recurso_nombre": "Nombre del recurso",
-          "recurso_url": "https://url-real.com"
-        }
-      ]
-    }
-  ],
-  "recursos_clave": [
-    { "emoji": "✅", "nombre": "Recurso", "descripcion": "Para qué usarlo", "url": "https://url.com" }
-  ],
-  "consejo_final": "Un consejo personalizado y motivador"
-}`;
-}
-
-// ===== API KEY MANAGEMENT =====
+// ===== UI HELPERS (no son parte del dominio) =====
 let currentProvider = 'groq';
 
-function checkAndStart() {
-  const key = localStorage.getItem('sp_apikey');
-  if (key) {
-    goTo('quiz');
-  } else {
-    goTo('apikey');
-    initApiKeyScreen();
+const PROVIDER_INFO = {
+  groq: {
+    placeholder: 'gsk_xxxxxxxxxxxxxxxxxxxx',
+    info: 'Groq es gratis y muy rápido. <button class="inline-help" onclick="showHelp(\'help-groq\')">¿Cómo obtengo mi key?</button>',
+    secondaryLabel: 'Key de Gemini para validación (recomendado)',
+    secondaryPlaceholder: 'AIzaxxxxxxxxxxxxxxxx',
+  },
+  gemini: {
+    placeholder: 'AIzaxxxxxxxxxxxxxxxx',
+    info: 'Gemini Flash es gratis con tu cuenta Google. <button class="inline-help" onclick="showHelp(\'help-gemini\')">¿Cómo obtengo mi key?</button>',
+    secondaryLabel: 'Key de Groq para validación (recomendado)',
+    secondaryPlaceholder: 'gsk_xxxxxxxxxxxxxxxxxxxx',
+  },
+  openai: {
+    placeholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxx',
+    info: 'GPT-4o Mini. Requiere créditos en tu cuenta OpenAI. <button class="inline-help" onclick="showHelp(\'help-openai\')">¿Cómo obtengo mi key?</button>',
+    secondaryLabel: 'Key de Gemini para validación (recomendado)',
+    secondaryPlaceholder: 'AIzaxxxxxxxxxxxxxxxx',
   }
+};
+
+const CEFR_FROM_EFSET = (s) => {
+  if (s <= 30) return 'A1–A2 (Básico)';
+  if (s <= 40) return 'B1 (Intermedio bajo)';
+  if (s <= 55) return 'B1–B2 (Intermedio)';
+  if (s <= 70) return 'B2–C1 (Intermedio alto)';
+  return 'C1–C2 (Avanzado)';
+};
+
+function selectProvider(p) {
+  currentProvider = p;
+  ['groq','gemini','openai'].forEach(id => {
+    document.getElementById('tab-' + id).classList.toggle('active', id === p);
+  });
+  const info = PROVIDER_INFO[p];
+  document.getElementById('provider-info-text').innerHTML = info.info;
+  document.getElementById('key-input-primary').placeholder = info.placeholder;
+  document.getElementById('key-input-secondary').placeholder = info.secondaryPlaceholder;
+  document.querySelector('.secondary-label').childNodes[0].textContent = info.secondaryLabel + ' ';
+  validateKeys();
 }
 
-function initApiKeyScreen() {
-  const savedKey = localStorage.getItem('sp_apikey');
-  const savedProvider = localStorage.getItem('sp_provider') || 'groq';
-  currentProvider = savedProvider;
-
-  if (savedKey) {
-    document.getElementById('key-saved-row').classList.add('visible');
-    document.getElementById('key-form').style.display = 'none';
-    document.getElementById('key-submit').textContent = 'Continuar →';
-    document.getElementById('key-submit').disabled = false;
-    document.getElementById('key-submit').style.display = 'block';
-    document.getElementById('key-form').style.display = 'block';
-    document.getElementById('key-input').value = savedKey;
-    document.getElementById('key-status').textContent = '✅ Key guardada anteriormente';
-    document.getElementById('key-status').className = 'key-status ok';
-    document.getElementById('key-submit').disabled = false;
-  }
-
-  switchProvider(savedProvider);
-}
-
-function switchProvider(p) {
-  currentProvider = 'groq';
-}
-
-function onKeyInput() {
-  const val = document.getElementById('key-input').value.trim();
+function validateKeys() {
+  const primary = document.getElementById('key-input-primary').value.trim();
   const btn = document.getElementById('key-submit');
   const status = document.getElementById('key-status');
-
-  if (val.length > 10) {
+  if (primary.length > 10) {
     btn.disabled = false;
     status.textContent = '✅ Lista para guardar';
     status.className = 'key-status ok';
   } else {
     btn.disabled = true;
-    status.textContent = 'La key se guarda solo en tu navegador';
+    status.textContent = 'Las keys se guardan en tu Google Drive';
     status.className = 'key-status info';
   }
 }
 
-function toggleKeyVisibility() {
-  const inp = document.getElementById('key-input');
+function toggleVis(id) {
+  const inp = document.getElementById(id);
   inp.type = inp.type === 'password' ? 'text' : 'password';
 }
 
-function saveKeyAndStart() {
-  const key = document.getElementById('key-input').value.trim();
-  if (!key) return;
-  localStorage.setItem('sp_apikey', key);
-  localStorage.setItem('sp_provider', currentProvider);
-  showToast('✅ Key guardada — ¡comenzamos!');
-  setTimeout(() => goTo('quiz'), 600);
-}
+async function saveKeysAndStart() {
+  const primaryKey = document.getElementById('key-input-primary').value.trim();
+  const secondaryKey = document.getElementById('key-input-secondary').value.trim();
 
-function clearKey() {
-  localStorage.removeItem('sp_apikey');
-  localStorage.removeItem('sp_provider');
-  document.getElementById('key-saved-row').classList.remove('visible');
-  document.getElementById('key-input').value = '';
-  document.getElementById('key-status').textContent = 'La key se guarda solo en tu navegador';
-  document.getElementById('key-status').className = 'key-status info';
-  document.getElementById('key-submit').disabled = true;
-}
+  // Determinar qué proveedor va como secundario
+  const secondaryProvider = currentProvider === 'groq' ? 'gemini' :
+                            currentProvider === 'gemini' ? 'groq' : 'gemini';
 
-function buildProfile() {
-  const styleMap = { 0: 'Visual', 1: 'Auditivo', 2: 'Lecto-escritor', 3: 'Kinestésico' };
-  const s1 = answers.style1?.index;
-  const s2 = answers.style2?.index;
-  const s3 = answers.style3?.index;
-  const counts = [0,1,2,3].map(i => [i, [s1,s2,s3,answers.style4?.index].filter(x=>x===i).length]);
-  counts.sort((a,b) => b[1]-a[1]);
-  const dominantStyle = styleMap[counts[0][0]] || 'Mixto';
-
-  return `
-- Estilo de aprendizaje dominante: ${dominantStyle}
-- Tiempo de atención: ${answers.attention?.value || 'No especificado'}
-- Mayor distractor: ${answers.distractor?.value || 'No especificado'}
-- Actividades que disfruta: ${answers.enjoy?.value || 'No especificado'}
-- Examen objetivo: ${answers.exam?.value || 'No especificado'}
-- Nivel actual: ${answers.level?.value || 'No especificado'}
-- Habilidades más débiles: ${answers.weakness?.value || 'No especificado'}
-- Tiempo disponible: ${answers.timeframe?.value || 'No especificado'}
-- Días por semana: ${answers.days?.value || 'No especificado'}
-- Tiempo por sesión: ${answers.session_time?.value || 'No especificado'}
-- Preferencia social: ${answers.social?.value || 'No especificado'}
-- Dispositivo principal: ${answers.device?.value || 'No especificado'}
-  `.trim();
-}
-
-let genStepTimer = null;
-
-function animateGenSteps() {
-  const steps = ['gs1','gs2','gs3','gs4','gs5'];
-  const msgs = ['Analizando tu estilo de aprendizaje…','Calculando la estructura ideal…','Seleccionando recursos perfectos para ti…','Diseñando tus semanas y sesiones…','Finalizando tu plan personalizado…'];
-  let i = 0;
-
-  genStepTimer = setInterval(() => {
-    if (i > 0) {
-      document.getElementById(steps[i-1]).classList.remove('active');
-      document.getElementById(steps[i-1]).classList.add('done');
+  const config = {
+    primaryProvider: currentProvider,
+    apiKeys: {
+      [currentProvider]: primaryKey,
+      ...(secondaryKey ? { [secondaryProvider]: secondaryKey } : {})
     }
-    if (i < steps.length) {
-      document.getElementById(steps[i]).classList.add('active');
-      document.getElementById('gen-status').textContent = msgs[i];
-      i++;
-    } else {
-      clearInterval(genStepTimer);
-    }
-  }, 900);
-}
-
-// ===== RENDER PLAN =====
-function renderPlan(plan) {
-  clearInterval(genStepTimer);
-  goTo('plan');
-
-  document.getElementById('plan-title').innerHTML = plan.titulo || 'Tu Plan Personalizado';
-
-  const metaDiv = document.getElementById('plan-meta');
-  (plan.meta_pills || []).forEach(pill => {
-    const el = document.createElement('div');
-    el.className = 'meta-pill';
-    el.textContent = pill;
-    metaDiv.appendChild(el);
-  });
-
-  const content = document.getElementById('plan-content');
-  content.innerHTML = '';
-
-  // Count total sessions
-  totalSessions = (plan.semanas || []).reduce((sum, w) => sum + (w.sesiones || []).length, 0);
-
-  // Perfil
-  if (plan.perfil_resumen) {
-    const block = document.createElement('div');
-    block.className = 'ai-block fade-up';
-    block.innerHTML = `<h3>👤 Tu perfil</h3><p>${plan.perfil_resumen}</p>${plan.recomendacion_tdah ? `<p style="margin-top:10px;color:var(--gold)">⚡ ${plan.recomendacion_tdah}</p>` : ''}`;
-    content.appendChild(block);
-  }
-
-  // Semanas
-  const weeksTitle = document.createElement('div');
-  weeksTitle.className = 'plan-section-title';
-  weeksTitle.innerHTML = '📅 Tu plan semana a semana';
-  content.appendChild(weeksTitle);
-
-  (plan.semanas || []).forEach((week, wi) => {
-    const wb = document.createElement('div');
-    wb.className = 'week-block' + (wi === 0 ? ' open' : '');
-    wb.innerHTML = `
-      <div class="week-block-header" onclick="this.parentElement.classList.toggle('open')">
-        <div class="wbh-left">
-          <div class="wbh-num">SEMANA ${week.numero}</div>
-          <div class="wbh-title">${week.titulo}</div>
-        </div>
-        <span class="wbh-arrow">▾</span>
-      </div>
-      <div class="week-block-body">
-        <p style="margin-bottom:12px;color:var(--muted);font-size:0.82rem">${week.enfoque}</p>
-        ${(week.sesiones || []).map((s, si) => {
-          const id = `s_w${wi}_s${si}`;
-          return `
-          <div class="session-check" id="${id}" onclick="toggleSess('${id}')">
-            <div class="sc-box">✓</div>
-            <div class="sc-text">
-              <strong style="display:block;margin-bottom:3px;color:var(--text)">${s.titulo}</strong>
-              ${s.descripcion}
-              ${s.recurso_url ? `<br><a href="${s.recurso_url}" target="_blank" onclick="event.stopPropagation()" style="color:var(--blue);font-size:0.78rem;display:inline-block;margin-top:5px">🔗 ${s.recurso_nombre || 'Recurso'}</a>` : ''}
-            </div>
-            <div class="sc-time">${s.duracion || '20 min'}</div>
-          </div>`;
-        }).join('')}
-      </div>`;
-    content.appendChild(wb);
-  });
-
-  // Recursos
-  if (plan.recursos_clave?.length) {
-    const resTitle = document.createElement('div');
-    resTitle.className = 'plan-section-title';
-    resTitle.innerHTML = '🛠️ Tus recursos clave';
-    content.appendChild(resTitle);
-
-    plan.recursos_clave.forEach(r => {
-      const a = document.createElement('a');
-      a.className = 'resource-link';
-      a.href = r.url || '#';
-      a.target = '_blank';
-      a.innerHTML = `<span class="resource-icon">${r.emoji}</span><div><div class="resource-name">${r.nombre}</div><div class="resource-desc">${r.descripcion}</div></div><span class="resource-arrow">→</span>`;
-      content.appendChild(a);
-    });
-  }
-
-  // Consejo final
-  if (plan.consejo_final) {
-    const tip = document.createElement('div');
-    tip.className = 'ai-block';
-    tip.style.borderColor = 'rgba(255,107,53,0.3)';
-    tip.innerHTML = `<h3>💡 Consejo para ti</h3><p>${plan.consejo_final}</p>`;
-    content.appendChild(tip);
-  }
-
-  // Restart
-  const restart = document.createElement('button');
-  restart.className = 'restart-btn';
-  restart.textContent = '↺ Crear un nuevo plan';
-  restart.onclick = () => {
-    currentQ = 0; answers = {}; selectedIdx = null; sessions = {};
-    document.getElementById('plan-meta').innerHTML = '';
-    document.getElementById('plan-content').innerHTML = '';
-    renderQuestion();
-    goTo('quiz');
   };
-  content.appendChild(restart);
 
-  updatePlanProgress();
+  // Guardar en Google Drive via app.js state
+  if (window._storage) {
+    await window._storage.saveUserConfig(config);
+  }
+  window._userConfig = config;
+
+  showToast('✅ Configuración guardada');
+  setTimeout(() => goTo('efset'), 500);
 }
 
-function renderError() {
-  goTo('plan');
-  document.getElementById('plan-content').innerHTML = `
-    <div class="error-box">
-      <p>Hubo un error generando tu plan. Puede ser un problema de conexión. Intenta de nuevo.</p>
-      <button class="retry-btn" onclick="generatePlan()">Reintentar</button>
-    </div>`;
+function showHelp(id) { document.getElementById(id).style.display = 'flex'; }
+function closeHelp(id) { document.getElementById(id).style.display = 'none'; }
+function showValidatorHelp() { showHelp('help-validator'); }
+
+// EF SET
+function validateEFSET() {
+  const val = parseInt(document.getElementById('efset-score').value);
+  const btn = document.getElementById('efset-next');
+  const level = document.getElementById('efset-level');
+  if (val >= 1 && val <= 100) {
+    btn.disabled = false;
+    level.textContent = `Nivel detectado: ${CEFR_FROM_EFSET(val)}`;
+    level.style.color = 'var(--green)';
+  } else {
+    btn.disabled = true;
+    level.textContent = '';
+  }
 }
 
-// ===== SESSION TOGGLE =====
-function toggleSess(id) {
-  const el = document.getElementById(id);
-  el.classList.toggle('done');
-  sessions[id] = el.classList.contains('done');
-  updatePlanProgress();
-  showToast(sessions[id] ? '¡Sesión completada! 💪' : 'Sesión desmarcada');
+function submitEFSET() {
+  const val = parseInt(document.getElementById('efset-score').value);
+  window._efsetScore = val;
+  goTo('quiz');
 }
 
-function updatePlanProgress() {
-  const done = Object.values(sessions).filter(Boolean).length;
-  const pct = totalSessions > 0 ? Math.round((done / totalSessions) * 100) : 0;
-  document.getElementById('plan-pct').textContent = pct + '%';
-  document.getElementById('plan-fill').style.width = pct + '%';
-  if (pct === 100) showToast('¡Plan completado! 🏆🎉');
+function skipEFSET() {
+  window._efsetScore = 45; // Default B1
+  showToast('Usando nivel B1 por defecto');
+  goTo('quiz');
 }
 
-// ===== TOAST =====
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
-}
-
-// Init
-renderQuestion();
+// Init provider info
+window.addEventListener('load', () => selectProvider('groq'));
 </script>
 </body>
 </html>
