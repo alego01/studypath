@@ -362,4 +362,5 @@ window.addEventListener('load', () => {
   window.quizBack = quizBack;
   window.toggleSession = toggleSession;
   window.generatePlan = generatePlan;
+  window.handleGoogleSignIn = handleGoogleSignIn;
 });
