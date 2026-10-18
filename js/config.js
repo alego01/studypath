@@ -1,7 +1,6 @@
-// config.js — Lee variables de entorno inyectadas por GitHub Actions
-// En desarrollo local, reemplaza los valores manualmente aquí
+// config.js — Valores de configuración. El Client ID se inyecta en runtime.
 const Config = {
-  GOOGLE_CLIENT_ID: '%%GOOGLE_CLIENT_ID%%',  // Inyectado por GitHub Actions
+  GOOGLE_CLIENT_ID: '%%GOOGLE_CLIENT_ID%%',
   GOOGLE_DRIVE_SCOPE: 'https://www.googleapis.com/auth/drive.appdata',
   GOOGLE_DISCOVERY_DOC: 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
   APP_FOLDER: 'StudyPath AI',

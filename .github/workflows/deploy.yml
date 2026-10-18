@@ -20,7 +20,6 @@ jobs:
 
       - name: Inject secrets
         run: |
-          sed -i "s|%%GOOGLE_CLIENT_ID%%|${{ secrets.GOOGLE_CLIENT_ID }}|g" index.html
           sed -i "s|%%GOOGLE_CLIENT_ID%%|${{ secrets.GOOGLE_CLIENT_ID }}|g" js/config.js
 
       - uses: actions/configure-pages@v4

@@ -22,6 +22,8 @@ export function parseJSON(raw) {
 
 export function repairJSON(str) {
   let result = str;
+  // Escapar saltos de línea dentro de strings
+  result = result.replace(/"([^"]*?)\n([^"]*?)"/g, (_, a, b) => `"${a}\\n${b}"`);
   let opens = 0, openArr = 0;
   let inString = false, escape = false;
   for (let i = 0; i < result.length; i++) {

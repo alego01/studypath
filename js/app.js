@@ -4,6 +4,7 @@
  * Es el único lugar que conoce las implementaciones concretas.
  */
 import Config from './config.js';
+import { loadEnv } from './env.js';
 import { QUESTIONS, TOTAL_QUESTIONS, quizProgress } from './core/quiz.js';
 import { buildUserProfile } from './core/profile.js';
 import { calculateProgress, sessionId } from './core/plan.js';
@@ -28,12 +29,18 @@ let state = {
 };
 
 // ===== GOOGLE AUTH =====
+let tokenClient;
+
 function initGoogleAuth() {
   google.accounts.id.initialize({
     client_id: Config.GOOGLE_CLIENT_ID,
     callback: handleGoogleSignIn,
   });
-  google.accounts.oauth2.initTokenClient({
+  google.accounts.id.renderButton(
+    document.getElementById('g_id_signin'),
+    { type: 'standard', size: 'large', theme: 'filled_black', text: 'continue_with', shape: 'rectangular', logo_alignment: 'left', width: 320 }
+  );
+  tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: Config.GOOGLE_CLIENT_ID,
     scope: Config.GOOGLE_DRIVE_SCOPE,
     callback: handleTokenResponse,
@@ -43,15 +50,10 @@ function initGoogleAuth() {
 async function handleGoogleSignIn(response) {
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
   state.user = { name: payload.name, email: payload.email, picture: payload.picture };
-  requestDriveToken();
+  tokenClient.requestAccessToken({ prompt: '' });
 }
 
 function requestDriveToken() {
-  const tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: Config.GOOGLE_CLIENT_ID,
-    scope: Config.GOOGLE_DRIVE_SCOPE,
-    callback: handleTokenResponse,
-  });
   tokenClient.requestAccessToken({ prompt: '' });
 }
 
@@ -139,6 +141,7 @@ async function generatePlan() {
 function goTo(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + screenId).classList.add('active');
+  if (screenId === 'quiz') renderQuestion();
   window.scrollTo(0, 0);
 }
 
@@ -161,7 +164,8 @@ function renderQuestion() {
     const btn = document.createElement('button');
     btn.className = 'quiz-opt' + (state.selectedIdx === i ? ' selected' : '');
     btn.innerHTML = `<span class="opt-letter">${letters[i]}</span>${opt}`;
-    btn.onclick = () => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
       document.querySelectorAll('.quiz-opt').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       state.selectedIdx = i;
@@ -352,15 +356,30 @@ function renderPlan(plan) {
 }
 
 // ===== INIT =====
-window.addEventListener('load', () => {
-  initGoogleAuth();
-  renderQuestion();
+async function init() {
+  const env = await loadEnv();
+  if (env.GOOGLE_CLIENT_ID) Config.GOOGLE_CLIENT_ID = env.GOOGLE_CLIENT_ID;
 
-  // Exponer funciones necesarias al HTML
   window.goTo = goTo;
   window.quizNext = quizNext;
   window.quizBack = quizBack;
   window.toggleSession = toggleSession;
   window.generatePlan = generatePlan;
   window.handleGoogleSignIn = handleGoogleSignIn;
-});
+  window.showToast = showToast;
+  window._state = state;
+
+  // Esperar a que GSI esté listo
+  await new Promise((resolve, reject) => {
+    if (window.google?.accounts) return resolve();
+    window._gsiReady = resolve;
+    setTimeout(() => reject(new Error('Google GSI no cargó')), 10000);
+  });
+
+  initGoogleAuth();
+}
+
+window.addEventListener('load', () => init().catch(err => {
+  console.error('[init]', err);
+  showToast('Error al cargar Google. Recarga la página.');
+}));

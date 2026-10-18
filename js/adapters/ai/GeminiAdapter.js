@@ -9,14 +9,32 @@ export class GeminiAdapter extends IAIPort {
   constructor(apiKey) {
     super();
     this.apiKey = apiKey;
-    this.model = 'gemini-1.5-flash';
-    this.baseURL = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent`;
+    this.model = 'gemini-1.5-flash'; // fallback
+    this.baseURL = 'https://generativelanguage.googleapis.com/v1beta/models';
   }
 
-  get providerName() { return 'Google Gemini 1.5 Flash'; }
+  get providerName() { return 'Google Gemini'; }
+
+  async _getModel() {
+    try {
+      const res = await fetch(`${this.baseURL}?key=${this.apiKey}`);
+      const data = await res.json();
+      const preferred = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+      const available = (data.models || [])
+        .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+        .map(m => m.name.split('/').pop());
+      return preferred.find(m => available.includes(m)) || available[0] || this.model;
+    } catch {
+      return this.model;
+    }
+  }
 
   async _call(prompt, maxTokens = 4000) {
-    const res = await fetch(`${this.baseURL}?key=${this.apiKey}`, {
+    if (!this._modelResolved) {
+      this.model = await this._getModel();
+      this._modelResolved = true;
+    }
+    const res = await fetch(`${this.baseURL}/${this.model}:generateContent?key=${this.apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
