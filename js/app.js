@@ -50,7 +50,7 @@ function initGoogleAuth() {
 async function handleGoogleSignIn(response) {
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
   state.user = { name: payload.name, email: payload.email, picture: payload.picture };
-  tokenClient.requestAccessToken({ prompt: '' });
+  tokenClient.requestAccessToken({ prompt: 'none' });
 }
 
 function requestDriveToken() {
