@@ -50,7 +50,11 @@ function initGoogleAuth() {
 async function handleGoogleSignIn(response) {
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
   state.user = { name: payload.name, email: payload.email, picture: payload.picture };
-  tokenClient.requestAccessToken({ prompt: 'none' });
+  try {
+    tokenClient.requestAccessToken({ prompt: 'none' });
+  } catch {
+    tokenClient.requestAccessToken({ prompt: 'consent' });
+  }
 }
 
 function requestDriveToken() {
@@ -58,7 +62,14 @@ function requestDriveToken() {
 }
 
 async function handleTokenResponse(tokenResponse) {
-  if (tokenResponse.error) { showToast('Error al conectar con Google Drive'); return; }
+  if (tokenResponse.error) {
+    if (tokenResponse.error === 'interaction_required' || tokenResponse.error === 'access_denied') {
+      tokenClient.requestAccessToken({ prompt: 'consent' });
+      return;
+    }
+    showToast('Error al conectar con Google Drive');
+    return;
+  }
   state.accessToken = tokenResponse.access_token;
   state.storage = new DriveAdapter(state.accessToken);
 
