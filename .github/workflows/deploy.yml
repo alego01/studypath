@@ -22,6 +22,8 @@ jobs:
       - name: Inject secrets
         run: |
           sed -i "s|%%GOOGLE_CLIENT_ID%%|${{ secrets.GOOGLE_CLIENT_ID }}|g" js/config.js
+          echo "Verificando reemplazo:"
+          grep GOOGLE_CLIENT_ID js/config.js
 
       - uses: actions/configure-pages@v4
 
