@@ -32,6 +32,7 @@ let state = {
 let tokenClient;
 
 function initGoogleAuth() {
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   google.accounts.id.initialize({
     client_id: Config.GOOGLE_CLIENT_ID,
     callback: handleGoogleSignIn,
@@ -44,6 +45,7 @@ function initGoogleAuth() {
     client_id: Config.GOOGLE_CLIENT_ID,
     scope: Config.GOOGLE_DRIVE_SCOPE,
     callback: handleTokenResponse,
+    ...(isMobile && { ux_mode: 'redirect', redirect_uri: location.origin + location.pathname }),
   });
 }
 
@@ -65,6 +67,10 @@ async function handleTokenResponse(tokenResponse) {
   if (tokenResponse.error) {
     if (tokenResponse.error === 'interaction_required' || tokenResponse.error === 'access_denied') {
       tokenClient.requestAccessToken({ prompt: 'consent' });
+      return;
+    }
+    if (tokenResponse.error === 'popup_failed_to_open' || tokenResponse.error === 'popup_closed') {
+      showToast('⚠️ Activa popups para este sitio en tu navegador');
       return;
     }
     showToast('Error al conectar con Google Drive');
@@ -379,6 +385,14 @@ async function init() {
   window.handleGoogleSignIn = handleGoogleSignIn;
   window.showToast = showToast;
   window._state = state;
+
+  // Manejar token de redirect en móvil
+  const hash = new URLSearchParams(location.hash.slice(1));
+  const accessToken = hash.get('access_token');
+  if (accessToken) {
+    history.replaceState(null, '', location.pathname);
+    await handleTokenResponse({ access_token: accessToken });
+  }
 
   // Esperar a que GSI esté listo
   await new Promise((resolve, reject) => {
