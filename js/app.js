@@ -7,7 +7,7 @@ import Config from './config.js';
 import { loadEnv } from './env.js';
 import { QUESTIONS, TOTAL_QUESTIONS, quizProgress } from './core/quiz.js';
 import { buildUserProfile } from './core/profile.js';
-import { calculateProgress, sessionId } from './core/plan.js';
+import { calculateProgress, sessionId, buildSessionEditPrompt } from './core/plan.js';
 import { GroqAdapter } from './adapters/ai/GroqAdapter.js';
 import { GeminiAdapter } from './adapters/ai/GeminiAdapter.js';
 import { OpenAIAdapter } from './adapters/ai/OpenAIAdapter.js';
@@ -146,6 +146,30 @@ async function generatePlan() {
         <button class="retry-btn" onclick="generatePlan()">Reintentar</button>
       </div>`;
     goTo('plan');
+  }
+}
+
+// ===== EDIT SESSION =====
+async function editSession(weekIdx, sessionIdx, feedback) {
+  showToast('🧠 Regenerando sesión...');
+  const week = state.plan.semanas[weekIdx];
+  const session = week.sesiones[sessionIdx];
+  const provider = state.userConfig.primaryProvider || 'groq';
+  const primaryKey = state.userConfig.apiKeys?.[provider];
+  const adapter = createAdapter(provider, primaryKey);
+  const { profileToPromptText } = await import('./core/profile.js');
+  const profileText = state.plan._meta?.userProfile
+    ? profileToPromptText(state.plan._meta.userProfile)
+    : 'Perfil no disponible';
+  const prompt = buildSessionEditPrompt(session, week.titulo, feedback, profileText);
+  try {
+    const newSession = await adapter.generatePlan(prompt);
+    state.plan.semanas[weekIdx].sesiones[sessionIdx] = newSession;
+    await state.storage.savePlan(state.plan);
+    renderPlan(state.plan);
+    showToast('✅ Sesión actualizada');
+  } catch (err) {
+    showToast('Error al regenerar: ' + err.message);
   }
 }
 
@@ -293,14 +317,17 @@ function renderPlan(plan) {
       const id = sessionId(wi, si);
       const isDone = state.progress[id] || false;
       return `
-        <div class="session-check ${isDone ? 'done' : ''}" id="${id}" onclick="toggleSession('${id}')">
-          <div class="sc-box">✓</div>
-          <div class="sc-text">
+        <div class="session-check ${isDone ? 'done' : ''}" id="${id}">
+          <div class="sc-box" onclick="toggleSession('${id}')">✓</div>
+          <div class="sc-text" onclick="toggleSession('${id}')">
             <strong style="display:block;margin-bottom:3px;color:var(--text)">${s.titulo}</strong>
             ${s.descripcion}
             ${s.recurso_url ? `<br><a href="${s.recurso_url}" target="_blank" onclick="event.stopPropagation()" style="color:var(--blue);font-size:0.78rem;display:inline-block;margin-top:5px">🔗 ${s.recurso_nombre || 'Recurso'}</a>` : ''}
           </div>
-          <div class="sc-time">${s.duracion || '20 min'}</div>
+          <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+            <div class="sc-time">${s.duracion || '20 min'}</div>
+            <button onclick="openEditModal(${wi},${si})" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:0.7rem;cursor:pointer;padding:2px 6px">✏️</button>
+          </div>
         </div>`;
     }).join('');
 
@@ -377,6 +404,7 @@ async function init() {
   window.quizBack = quizBack;
   window.toggleSession = toggleSession;
   window.generatePlan = generatePlan;
+  window.editSession = editSession;
   window.handleGoogleSignIn = handleGoogleSignIn;
   window.showToast = showToast;
   window._state = state;

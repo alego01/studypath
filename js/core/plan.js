@@ -96,8 +96,34 @@ Responde SOLO con JSON válido, sin markdown ni texto extra:
 }
 
 /**
- * Construye el prompt de validación del plan
+ * Construye el prompt para regenerar una sesión específica
  */
+export function buildSessionEditPrompt(session, weekContext, userFeedback, profileText) {
+  return `Eres un experto en enseñanza de inglés. El estudiante tiene un problema con una sesión de su plan de estudio.
+
+PERFIL DEL ESTUDIANTE:
+${profileText}
+
+CONTEXTO DE LA SEMANA: ${weekContext}
+
+SESIÓN ACTUAL:
+${JSON.stringify(session, null, 2)}
+
+PROBLEMA REPORTADO POR EL ESTUDIANTE:
+${userFeedback}
+
+Genera una sesión alternativa que resuelva el problema. Debe tener la misma duración y tipo, pero con recursos gratuitos y accesibles.
+
+Responde SOLO con JSON válido de la sesión reemplazada:
+{
+  "titulo": "...",
+  "descripcion": "...",
+  "duracion": "...",
+  "tipo": "...",
+  "recurso_nombre": "...",
+  "recurso_url": "https://..."
+}`;
+}
 export function buildValidationPrompt(plan, profileText) {
   return `Eres un evaluador experto en planes de estudio de inglés y el marco CEFR. 
   

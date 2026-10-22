@@ -211,6 +211,17 @@
   <div class="plan-content" id="plan-content"></div>
 </div>
 
+<!-- EDIT SESSION MODAL -->
+<div class="help-popup" id="modal-edit-session" style="display:none">
+  <div class="help-popup-content">
+    <button class="help-close" onclick="closeEditModal()">✕</button>
+    <h3>✏️ ¿Qué está mal con esta sesión?</h3>
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px">Describe el problema y la IA generará una alternativa.</p>
+    <textarea id="edit-session-feedback" placeholder="Ej: El recurso no es gratuito, no tengo acceso a esta herramienta, es muy difícil para mi nivel..." style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;resize:vertical;min-height:90px;outline:none"></textarea>
+    <button onclick="submitSessionEdit()" style="width:100%;background:var(--accent);border:none;border-radius:12px;padding:14px;color:white;font-family:'Fraunces',serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:12px">Regenerar sesión →</button>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -345,6 +356,24 @@ function skipEFSET() {
 
 // Init provider info
 window.addEventListener('load', () => selectProvider('groq'));
+
+// Edit session
+let _editTarget = null;
+function openEditModal(weekIdx, sessionIdx) {
+  _editTarget = { weekIdx, sessionIdx };
+  document.getElementById('edit-session-feedback').value = '';
+  document.getElementById('modal-edit-session').style.display = 'flex';
+}
+function closeEditModal() {
+  document.getElementById('modal-edit-session').style.display = 'none';
+  _editTarget = null;
+}
+async function submitSessionEdit() {
+  const feedback = document.getElementById('edit-session-feedback').value.trim();
+  if (!feedback) return;
+  closeEditModal();
+  await editSession(_editTarget.weekIdx, _editTarget.sessionIdx, feedback);
+}
 </script>
 </body>
 </html>
