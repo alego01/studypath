@@ -51,11 +51,7 @@ function initGoogleAuth() {
 async function handleGoogleSignIn(response) {
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
   state.user = { name: payload.name, email: payload.email, picture: payload.picture };
-  try {
-    tokenClient.requestAccessToken({ prompt: 'none' });
-  } catch {
-    tokenClient.requestAccessToken({ prompt: 'consent' });
-  }
+  tokenClient.requestAccessToken({ prompt: 'select_account' });
 }
 
 function requestDriveToken() {
