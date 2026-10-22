@@ -32,12 +32,10 @@ let state = {
 let tokenClient;
 
 function initGoogleAuth() {
-  const redirectUri = location.href.split('#')[0];
   google.accounts.id.initialize({
     client_id: Config.GOOGLE_CLIENT_ID,
     callback: handleGoogleSignIn,
-    ux_mode: 'redirect',
-    login_uri: redirectUri,
+    use_fedcm_for_prompt: true,
   });
   google.accounts.id.renderButton(
     document.getElementById('g_id_signin'),
@@ -386,15 +384,6 @@ async function init() {
   window.handleGoogleSignIn = handleGoogleSignIn;
   window.showToast = showToast;
   window._state = state;
-
-  // Manejar credential de redirect
-  const params = new URLSearchParams(location.search);
-  const credential = params.get('credential');
-  if (credential) {
-    history.replaceState(null, '', location.pathname);
-    await handleGoogleSignIn({ credential });
-    return;
-  }
 
   // Esperar a que GSI esté listo
   await new Promise((resolve, reject) => {
