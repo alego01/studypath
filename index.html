@@ -6,8 +6,10 @@
 <title>StudyPath AI — Tu plan de inglés personalizado</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23ff6b35'/><text y='75' x='50' text-anchor='middle' font-size='60'>✦</text></svg>">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ff6b35">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="StudyPath AI">
 </head>
@@ -370,9 +372,10 @@ function closeEditModal() {
 }
 async function submitSessionEdit() {
   const feedback = document.getElementById('edit-session-feedback').value.trim();
-  if (!feedback) return;
+  if (!feedback || !_editTarget) return;
+  const { weekIdx, sessionIdx } = _editTarget;
   closeEditModal();
-  await editSession(_editTarget.weekIdx, _editTarget.sessionIdx, feedback);
+  await editSession(weekIdx, sessionIdx, feedback);
 }
 </script>
 </body>
