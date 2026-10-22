@@ -395,3 +395,9 @@ window.addEventListener('load', () => init().catch(err => {
   console.error('[init]', err);
   showToast('Error al cargar Google. Recarga la página.');
 }));
+
+// ===== SERVICE WORKER =====
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js')
+    .catch(err => console.warn('[SW] Error al registrar:', err));
+}
