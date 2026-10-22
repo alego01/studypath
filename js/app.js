@@ -32,9 +32,12 @@ let state = {
 let tokenClient;
 
 function initGoogleAuth() {
+  const redirectUri = location.href.split('#')[0];
   google.accounts.id.initialize({
     client_id: Config.GOOGLE_CLIENT_ID,
     callback: handleGoogleSignIn,
+    ux_mode: 'redirect',
+    login_uri: redirectUri,
   });
   google.accounts.id.renderButton(
     document.getElementById('g_id_signin'),
@@ -44,8 +47,6 @@ function initGoogleAuth() {
     client_id: Config.GOOGLE_CLIENT_ID,
     scope: Config.GOOGLE_DRIVE_SCOPE,
     callback: handleTokenResponse,
-    ux_mode: 'redirect',
-    redirect_uri: location.href.split('#')[0],
   });
 }
 
@@ -386,12 +387,12 @@ async function init() {
   window.showToast = showToast;
   window._state = state;
 
-  // Manejar token de redirect (móvil)
-  const hash = new URLSearchParams(location.hash.slice(1));
-  const accessToken = hash.get('access_token');
-  if (accessToken) {
+  // Manejar credential de redirect
+  const params = new URLSearchParams(location.search);
+  const credential = params.get('credential');
+  if (credential) {
     history.replaceState(null, '', location.pathname);
-    await handleTokenResponse({ access_token: accessToken });
+    await handleGoogleSignIn({ credential });
     return;
   }
 
