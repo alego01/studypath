@@ -44,6 +44,8 @@ function initGoogleAuth() {
     client_id: Config.GOOGLE_CLIENT_ID,
     scope: Config.GOOGLE_DRIVE_SCOPE,
     callback: handleTokenResponse,
+    ux_mode: 'redirect',
+    redirect_uri: location.href.split('#')[0],
   });
 }
 
@@ -383,6 +385,15 @@ async function init() {
   window.handleGoogleSignIn = handleGoogleSignIn;
   window.showToast = showToast;
   window._state = state;
+
+  // Manejar token de redirect (móvil)
+  const hash = new URLSearchParams(location.hash.slice(1));
+  const accessToken = hash.get('access_token');
+  if (accessToken) {
+    history.replaceState(null, '', location.pathname);
+    await handleTokenResponse({ access_token: accessToken });
+    return;
+  }
 
   // Esperar a que GSI esté listo
   await new Promise((resolve, reject) => {
